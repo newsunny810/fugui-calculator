@@ -1,0 +1,38 @@
+{
+  "generated_at": "2025-07-03T00:00:00Z",
+  "funds": {
+    "allianz_tech": {
+      "name": "安聯台灣科技基金",
+      "inception": "2001-04-03",
+      "note": "單筆申購 / 台幣計價",
+      "latest_nav": null,
+      "latest_date": "2025-07-03",
+      "scenarios": [
+        {
+          "label": "成立日年化（約25年）",
+          "rate": 19.32,
+          "from_date": "2001-04-03",
+          "to_date": "2025-07-03",
+          "from_nav": 0,
+          "to_nav": 0
+        },
+        {
+          "label": "10年年化",
+          "rate": 41.60,
+          "from_date": "2015-07-03",
+          "to_date": "2025-07-03",
+          "from_nav": 0,
+          "to_nav": 0
+        },
+        {
+          "label": "5年年化",
+          "rate": 50.94,
+          "from_date": "2020-07-03",
+          "to_date": "2025-07-03",
+          "from_nav": 0,
+          "to_nav": 0
+        }
+      ]
+    }
+  }
+}

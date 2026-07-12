@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>富貴大贏家 變額萬能壽險(戊型) 試算</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;500;700;900&family=Noto+Sans+TC:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --gold: #C9A84C; --gold-light: #E8C97A; --gold-dark: #8B6914;
+    --deep: #1A1208; --cream: #F5EDD8; --cream-light: #FBF6EA;
+    --border: rgba(201,168,76,0.3);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--deep); color: var(--cream); font-family: 'Noto Sans TC', sans-serif; min-height: 100vh; overflow-x: hidden; }
+  body::before {
+    content: ''; position: fixed; inset: 0;
+    background:
+      radial-gradient(ellipse at 15% 20%, rgba(201,168,76,0.08) 0%, transparent 50%),
+      radial-gradient(ellipse at 85% 80%, rgba(201,168,76,0.06) 0%, transparent 50%),
+      repeating-linear-gradient(45deg, transparent, transparent 40px, rgba(201,168,76,0.015) 40px, rgba(201,168,76,0.015) 41px);
+    pointer-events: none; z-index: 0;
+  }
+  .container { position: relative; z-index: 1; max-width: 1280px; margin: 0 auto; padding: 32px 20px 60px; }
+
+  .header { text-align: center; margin-bottom: 36px; padding-bottom: 24px; border-bottom: 1px solid var(--border); position: relative; }
+  .header::after { content: ''; position: absolute; bottom: -1px; left: 50%; transform: translateX(-50%); width: 80px; height: 2px; background: linear-gradient(90deg, transparent, var(--gold), transparent); }
+  .header-badge { display: inline-block; font-size: 11px; letter-spacing: 3px; color: var(--gold); border: 1px solid var(--border); padding: 4px 16px; margin-bottom: 12px; }
+  .header h1 { font-family: 'Noto Serif TC', serif; font-size: clamp(20px, 4vw, 32px); font-weight: 900; color: var(--cream-light); margin-bottom: 5px; }
+  .header h1 span { color: var(--gold); }
+  .header p { font-size: 12px; color: rgba(245,237,216,0.5); letter-spacing: 1px; }
+
+  .layout { display: grid; grid-template-columns: 310px 1fr; gap: 20px; align-items: start; }
+  @media (max-width: 800px) { .layout { grid-template-columns: 1fr; } }
+
+  .panel { background: rgba(44,31,10,0.75); border: 1px solid var(--border); border-radius: 2px; padding: 22px; position: relative; overflow: hidden; }
+  .panel::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, transparent, var(--gold), transparent); }
+  .panel-title { font-family: 'Noto Serif TC', serif; font-size: 13px; color: var(--gold); letter-spacing: 2px; margin-bottom: 18px; display: flex; align-items: center; gap: 8px; }
+  .panel-title::before { content: ''; width: 3px; height: 13px; background: var(--gold); display: inline-block; }
+
+  .field { margin-bottom: 15px; }
+  label { display: block; font-size: 11px; color: rgba(245,237,216,0.6); letter-spacing: 1px; margin-bottom: 6px; }
+  input[type="number"] {
+    width: 100%; background: rgba(26,18,8,0.85); border: 1px solid rgba(201,168,76,0.22);
+    border-radius: 2px; color: var(--cream-light); font-family: 'Noto Sans TC', sans-serif;
+    font-size: 15px; padding: 9px 13px; transition: border-color 0.2s; outline: none;
+  }
+  input[type="number"]:focus { border-color: var(--gold); }
+  input[type="number"]::placeholder { color: rgba(245,237,216,0.18); }
+  .input-hint { font-size: 10px; color: rgba(245,237,216,0.3); margin-top: 4px; line-height: 1.5; }
+
+  /* 基金選取 */
+  select {
+    width: 100%; background: rgba(26,18,8,0.85); border: 1px solid rgba(201,168,76,0.22);
+    border-radius: 2px; color: var(--cream-light); font-family: 'Noto Sans TC', sans-serif;
+    font-size: 13px; padding: 9px 13px; outline: none; cursor: pointer;
+    appearance: none; -webkit-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23C9A84C' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right 12px center;
+    transition: border-color 0.2s;
+  }
+  select:focus { border-color: var(--gold); }
+  select option { background: #2C1F0A; color: var(--cream-light); }
+
+  /* 基金情境標籤 */
+  .fund-scenarios { display: flex; flex-direction: column; gap: 6px; margin-top: 8px; }
+  .fund-scenario-row { display: flex; align-items: center; justify-content: space-between; background: rgba(26,18,8,0.5); border: 1px solid rgba(201,168,76,0.15); padding: 7px 11px; border-radius: 2px; }
+  .fund-scenario-name { font-size: 11px; color: rgba(245,237,216,0.5); }
+  .fund-scenario-val { font-size: 13px; color: var(--gold-light); font-family: 'Noto Serif TC', serif; font-weight: 700; }
+  .fund-apply-btn { width: 100%; margin-top: 8px; padding: 8px; background: rgba(201,168,76,0.12); border: 1px solid var(--border); color: var(--gold); font-size: 12px; letter-spacing: 1px; cursor: pointer; border-radius: 2px; transition: all 0.2s; font-family: 'Noto Sans TC', sans-serif; }
+  .fund-apply-btn:hover { background: rgba(201,168,76,0.22); }
+  .disclaimer-box { background: rgba(139,26,26,0.15); border: 1px solid rgba(139,26,26,0.3); border-radius: 2px; padding: 8px 11px; margin-top: 8px; font-size: 10px; color: rgba(245,237,216,0.4); line-height: 1.7; }
+
+  .toggle2 { display: grid; grid-template-columns: 1fr 1fr; border: 1px solid rgba(201,168,76,0.22); border-radius: 2px; overflow: hidden; }
+  .toggle2 .tbtn { padding: 9px; text-align: center; font-size: 13px; cursor: pointer; transition: all 0.2s; background: rgba(26,18,8,0.6); color: rgba(245,237,216,0.45); user-select: none; letter-spacing: 2px; }
+  .toggle2 .tbtn.active { background: var(--gold); color: var(--deep); font-weight: 700; }
+
+  .switch-row { display: flex; align-items: center; justify-content: space-between; }
+  .switch-label { font-size: 11px; color: rgba(245,237,216,0.6); letter-spacing: 1px; }
+  .switch { position: relative; width: 44px; height: 24px; }
+  .switch input { opacity: 0; width: 0; height: 0; }
+  .slider { position: absolute; inset: 0; background: rgba(201,168,76,0.15); border: 1px solid rgba(201,168,76,0.25); border-radius: 24px; cursor: pointer; transition: 0.25s; }
+  .slider::before { content: ''; position: absolute; width: 16px; height: 16px; left: 3px; top: 3px; background: rgba(245,237,216,0.3); border-radius: 50%; transition: 0.25s; }
+  input:checked + .slider { background: rgba(201,168,76,0.35); border-color: var(--gold); }
+  input:checked + .slider::before { transform: translateX(20px); background: var(--gold); }
+
+  .freq-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; margin-top: 6px; }
+  .freq-btn { padding: 7px 4px; text-align: center; font-size: 11px; cursor: pointer; transition: all 0.18s; background: rgba(26,18,8,0.7); border: 1px solid rgba(201,168,76,0.18); color: rgba(245,237,216,0.4); border-radius: 1px; user-select: none; letter-spacing: 1px; }
+  .freq-btn.active { background: rgba(201,168,76,0.15); border-color: var(--gold); color: var(--gold); }
+
+  .rate-tabs { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 5px; }
+  .rate-tab { padding: 5px 11px; font-size: 12px; background: rgba(26,18,8,0.8); border: 1px solid rgba(201,168,76,0.18); color: rgba(245,237,216,0.45); cursor: pointer; border-radius: 1px; transition: all 0.15s; user-select: none; }
+  .rate-tab.active { background: rgba(201,168,76,0.15); border-color: var(--gold); color: var(--gold); }
+
+  .divider { height: 1px; background: linear-gradient(90deg, transparent, var(--border), transparent); margin: 14px 0; }
+
+  .calc-btn { width: 100%; padding: 13px; background: linear-gradient(135deg, var(--gold-dark), var(--gold), var(--gold-light)); border: none; color: var(--deep); font-family: 'Noto Serif TC', serif; font-size: 14px; font-weight: 700; letter-spacing: 3px; cursor: pointer; border-radius: 2px; transition: all 0.25s; margin-top: 6px; }
+  .calc-btn:hover { transform: translateY(-1px); box-shadow: 0 8px 24px rgba(201,168,76,0.3); }
+  .calc-btn:active { transform: translateY(0); }
+
+  .summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(148px, 1fr)); gap: 10px; margin-bottom: 16px; }
+  .summary-card { background: rgba(26,18,8,0.7); border: 1px solid var(--border); padding: 13px 14px; border-radius: 2px; text-align: center; }
+  .s-label { font-size: 10px; color: rgba(245,237,216,0.4); letter-spacing: 1px; margin-bottom: 5px; line-height: 1.4; }
+  .s-value { font-family: 'Noto Serif TC', serif; font-size: 17px; font-weight: 700; }
+  .c-green .s-value { color: #7EC87E; }
+  .c-gold  .s-value { color: var(--gold-light); }
+  .c-red   .s-value { color: #E89A7A; }
+  .c-blue  .s-value { color: #7ABDE8; }
+  .c-cream .s-value { color: var(--cream-light); }
+
+  .table-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: 2px; }
+  table { width: 100%; border-collapse: collapse; font-size: 11.5px; min-width: 700px; }
+  thead tr { background: rgba(201,168,76,0.1); }
+  thead th { font-family: 'Noto Serif TC', serif; font-weight: 500; color: var(--gold); padding: 10px 11px; text-align: right; white-space: nowrap; border-bottom: 1px solid var(--border); font-size: 11px; line-height: 1.6; }
+  thead th:first-child, thead th:nth-child(2) { text-align: center; }
+  thead th.th-sep { border-left: 1px solid rgba(201,168,76,0.2); }
+  tbody tr { border-bottom: 1px solid rgba(201,168,76,0.07); transition: background 0.12s; }
+  tbody tr:hover { background: rgba(201,168,76,0.04); }
+  tbody td { padding: 7px 11px; text-align: right; white-space: nowrap; }
+  tbody td:first-child { text-align: center; color: var(--gold); font-family: 'Noto Serif TC', serif; font-weight: 700; }
+  tbody td:nth-child(2) { text-align: center; color: rgba(245,237,216,0.6); }
+  td.td-sep { border-left: 1px solid rgba(201,168,76,0.12); }
+  .td-g    { color: #7EC87E !important; }
+  .td-gold { color: var(--gold-light) !important; }
+  .td-r    { color: #E89A7A !important; }
+  .td-b    { color: #7ABDE8 !important; }
+  .total-row td { background: rgba(201,168,76,0.08) !important; font-weight: 600; border-top: 1px solid var(--border) !important; }
+
+  .placeholder { text-align: center; padding: 56px 20px; color: rgba(245,237,216,0.18); }
+  .placeholder-icon { font-size: 44px; margin-bottom: 10px; }
+  .placeholder p { font-size: 12px; letter-spacing: 1px; }
+  .info-note { font-size: 10.5px; color: rgba(245,237,216,0.3); line-height: 1.9; }
+  .div-badge { display: inline-block; font-size: 9px; padding: 1px 7px; border: 1px solid #7ABDE8; color: #7ABDE8; border-radius: 10px; margin-left: 6px; vertical-align: middle; letter-spacing: 1px; }
+
+  ::-webkit-scrollbar { width: 4px; height: 4px; }
+  ::-webkit-scrollbar-track { background: var(--deep); }
+  ::-webkit-scrollbar-thumb { background: var(--gold-dark); border-radius: 2px; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="header">
+    <div class="header-badge">安達人壽 · CHUBB LIFE</div>
+    <h1>富貴大贏家 <span>變額萬能壽險</span>（戊型）</h1>
+    <p>躉繳保費試算系統 · 僅供業務規劃參考，正式數字以保單條款為準</p>
+  </div>
+
+  <div class="layout">
+
+    <!-- 左側輸入 -->
+    <div>
+      <div class="panel">
+        <div class="panel-title">基本設定</div>
+
+        <div class="field">
+          <label>被保險人性別</label>
+          <div class="toggle2">
+            <div class="tbtn active" id="btn-male" onclick="setGender('male')">♂ 男性</div>
+            <div class="tbtn" id="btn-female" onclick="setGender('female')">♀ 女性</div>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>投保年齡（足歲，15–80 歲）</label>
+          <input type="number" id="age" value="40" min="15" max="80">
+        </div>
+
+        <div class="field">
+          <label>基本保額（元）</label>
+          <input type="number" id="sumInsured" value="3000000" min="100000" step="100000">
+        </div>
+
+        <div class="field">
+          <label>躉繳保費（元，最低 100,000）</label>
+          <input type="number" id="lumpSum" value="1000000" min="100000" step="10000">
+          <div class="input-hint">本商品為躉繳，保費第一個月一次性投入帳戶</div>
+        </div>
+
+        <div class="divider"></div>
+        <div class="panel-title">基金參考情境</div>
+
+        <div class="field">
+          <label>選取投資標的基金</label>
+          <select id="fundSelect" onchange="onFundChange()">
+            <option value="">── 不套用基金，手動設定 ──</option>
+            <option value="allianz_tech">安聯台灣科技基金</option>
+          </select>
+        </div>
+
+        <div id="fund-info" style="display:none;">
+          <div class="fund-scenarios" id="fund-scenarios"></div>
+          <button class="fund-apply-btn" onclick="applyFundScenarios()">▶ 套用至報酬率情境</button>
+          <div class="disclaimer-box">
+            ⚠️ 以上為基金歷史年化報酬率（數據每日自動更新），<br>
+            過去績效不代表未來保證，僅供規劃參考。
+          </div>
+        </div>
+
+        <div class="divider"></div>
+        <div class="panel-title">年化報酬率情境</div>
+
+        <div class="field">
+          <label>選擇情境（最多 3 個）</label>
+          <div class="rate-tabs">
+            <div class="rate-tab" data-rate="2">2%</div>
+            <div class="rate-tab active" data-rate="4">4%</div>
+            <div class="rate-tab active" data-rate="6">6%</div>
+            <div class="rate-tab" data-rate="8">8%</div>
+            <div class="rate-tab" data-rate="10">10%</div>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>自訂報酬率（%，選填）</label>
+          <input type="number" id="customRate" placeholder="例：5.5" min="0" max="20" step="0.1">
+          <div class="input-hint">不重複已選情境則加入，總數上限 3 個</div>
+        </div>
+
+        <div class="divider"></div>
+        <div class="panel-title">配息設定</div>
+
+        <div class="field">
+          <div class="switch-row">
+            <span class="switch-label">啟用配息</span>
+            <label class="switch">
+              <input type="checkbox" id="divSwitch" onchange="toggleDivUI()">
+              <span class="slider"></span>
+            </label>
+          </div>
+        </div>
+
+        <div id="div-options" style="display:none;">
+          <div class="field">
+            <label>年化配息率（%）</label>
+            <input type="number" id="divRate" value="4" min="0.1" max="30" step="0.1" placeholder="例：4">
+            <div class="input-hint">配息 = 帳戶價值 × 配息率（獨立於報酬率）<br>配出後帳戶價值減少</div>
+          </div>
+          <div class="field">
+            <label>配息頻率</label>
+            <div class="freq-grid">
+              <div class="freq-btn" data-freq="1">月配</div>
+              <div class="freq-btn" data-freq="3">季配</div>
+              <div class="freq-btn active" data-freq="6">半年配</div>
+              <div class="freq-btn" data-freq="12">年配</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>試算年數</label>
+          <input type="number" id="years" value="20" min="1" max="60">
+        </div>
+
+        <button class="calc-btn" onclick="calculate()">▶ 開始試算</button>
+
+        <div class="info-note" style="margin-top:14px;">
+          ※ 保單管理費包含兩項：<br>
+          ①&nbsp;固定每月 100 元<br>
+          ②&nbsp;前 4 年附加保費費用（躉繳金額為基數，月均攤）<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;年1→2.4%／年2→2.1792%／年3&4→1.56%<br>
+          ※ 戊型淨危險保額 = MAX(基本保額－帳戶價值, 0)<br>
+          ※ 身故保險金 = MAX(基本保額, 帳戶價值)
+        </div>
+      </div>
+    </div>
+
+    <!-- 右側結果 -->
+    <div id="results-area">
+      <div class="panel">
+        <div class="placeholder">
+          <div class="placeholder-icon">📊</div>
+          <p>請填寫左側參數後點擊試算</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// ===== 基金資料庫（動態從 fund_data.json 載入）=====
+let fundDB = {};
+
+async function loadFundData() {
+  try {
+    const res = await fetch('fund_data.json?t=' + Date.now());
+    if (!res.ok) throw new Error('無法載入');
+    const json = await res.json();
+
+    // 轉換成程式內部格式
+    for (const [id, fund] of Object.entries(json.funds)) {
+      fundDB[id] = {
+        name: fund.name,
+        latestNav: fund.latest_nav,
+        latestDate: fund.latest_date,
+        note: fund.note,
+        scenarios: fund.scenarios.map(s => ({
+          label: s.label,
+          rate: s.rate,
+          fromDate: s.from_date,
+          toDate: s.to_date
+        }))
+      };
+    }
+
+    // 更新下拉選單選項的基金名稱（含最新淨值日期）
+    const sel = document.getElementById('fundSelect');
+    for (const [id, fund] of Object.entries(fundDB)) {
+      const opt = sel.querySelector(`option[value="${id}"]`);
+      if (opt && fund.latestDate) {
+        opt.textContent = `${fund.name}（淨值截至 ${fund.latestDate}）`;
+      }
+    }
+
+    console.log('✓ 基金數據載入成功，更新時間：' + json.generated_at);
+  } catch (e) {
+    console.warn('fund_data.json 載入失敗，使用備用靜態數據', e);
+    // 備用靜態數據
+    fundDB = {
+      allianz_tech: {
+        name: '安聯台灣科技基金',
+        latestDate: '2025-07-03',
+        note: '單筆申購 / 台幣計價（備用靜態數據）',
+        scenarios: [
+          { label: '成立日年化（約25年）', rate: 19.32 },
+          { label: '10年年化',             rate: 41.60 },
+          { label: '5年年化',              rate: 50.94 },
+        ]
+      }
+    };
+  }
+}
+
+function onFundChange() {
+  const val = document.getElementById('fundSelect').value;
+  const box = document.getElementById('fund-info');
+  if (!val) { box.style.display = 'none'; window._fundRates = null; return; }
+  const fund = fundDB[val];
+  if (!fund) { box.style.display = 'none'; return; }
+  box.style.display = 'block';
+  const container = document.getElementById('fund-scenarios');
+  container.innerHTML = fund.scenarios.map(s => {
+    const dateRange = s.fromDate && s.toDate
+      ? `<span style="font-size:9px;color:rgba(245,237,216,0.3);margin-left:6px">${s.fromDate} ～ ${s.toDate}</span>`
+      : '';
+    return `<div class="fund-scenario-row">
+      <span class="fund-scenario-name">${s.label}${dateRange}</span>
+      <span class="fund-scenario-val">${s.rate}%</span>
+    </div>`;
+  }).join('');
+}
+
+function applyFundScenarios() {
+  const val = document.getElementById('fundSelect').value;
+  if (!val) return;
+  const fund = fundDB[val];
+  if (!fund) return;
+  const rates = fund.scenarios.map(s => s.rate).slice(0, 3);
+  document.querySelectorAll('.rate-tab').forEach(el => el.classList.remove('active'));
+  document.getElementById('customRate').value = '';
+  window._fundRates = rates;
+  const btn = document.querySelector('.fund-apply-btn');
+  btn.textContent = `✓ 已套用：${rates.map(r => r + '%').join('、')}`;
+  btn.style.color = '#7EC87E';
+  btn.style.borderColor = '#7EC87E';
+  setTimeout(() => {
+    btn.textContent = '▶ 套用至報酬率情境';
+    btn.style.color = '';
+    btn.style.borderColor = '';
+  }, 2500);
+}
+
+// ===== 費率表 =====
+const mortalityTable = {
+  male: {
+    15:0.2467,16:0.2825,17:0.3150,18:0.3417,19:0.3625,20:0.3600,21:0.3725,22:0.3825,23:0.3883,24:0.3933,
+    25:0.4133,26:0.4200,27:0.4317,28:0.4483,29:0.4708,30:0.5475,31:0.5817,32:0.6242,33:0.6733,34:0.7308,
+    35:0.8142,36:0.8858,37:0.9667,38:1.0567,39:1.1550,40:1.2733,41:1.3883,42:1.5108,43:1.6433,44:1.7842,
+    45:2.0142,46:2.1725,47:2.3408,48:2.5192,49:2.7083,50:2.8850,51:3.0967,52:3.3225,53:3.5633,54:3.8208,
+    55:4.2167,56:4.5133,57:4.8350,58:5.1850,59:5.5650,60:6.2175,61:6.6708,62:7.1750,63:7.7358,64:8.3667,
+    65:9.3858,66:10.1942,67:11.1225,68:12.1775,69:13.3617,70:15.4233,71:16.8550,72:18.4250,73:20.1392,74:22.0175,
+    75:23.9033,76:26.1658,77:28.6608,78:31.4050,79:34.4025,80:37.6492,81:41.1492,82:44.9325,83:49.0392,84:53.5283,
+    85:58.4625,86:63.8992,87:69.8850,88:76.2525,89:82.9608,90:90.6783,91:99.6017,92:108.4500,93:118.0958,94:128.6108,
+    95:140.0733,96:152.5692,97:166.1908,98:181.0400,99:197.2275,100:214.8742,101:233.5550,102:252.8167,103:273.2842,104:294.9467,
+    105:317.7975,106:352.5200,107:390.2567,108:427.1242,109:465.4900,110:833.3333
+  },
+  female: {
+    15:0.1083,16:0.1200,17:0.1308,18:0.1408,19:0.1508,20:0.1483,21:0.1558,22:0.1633,23:0.1692,24:0.1742,
+    25:0.2000,26:0.2075,27:0.2167,28:0.2292,29:0.2442,30:0.2608,31:0.2792,32:0.2983,33:0.3192,34:0.3408,
+    35:0.3683,36:0.3950,37:0.4250,38:0.4583,39:0.4950,40:0.5450,41:0.5883,42:0.6358,43:0.6858,44:0.7400,
+    45:0.8475,46:0.9100,47:0.9767,48:1.0492,49:1.1267,50:1.1867,51:1.2733,52:1.3650,53:1.4608,54:1.5633,
+    55:1.7958,56:1.9208,57:2.0625,58:2.2233,59:2.4058,60:2.7692,61:3.0000,62:3.2650,63:3.5667,64:3.9142,
+    65:4.6658,66:5.1233,67:5.6550,68:6.2667,69:6.9667,70:8.0950,71:9.0008,72:10.0358,73:11.2100,74:12.5358,
+    75:13.6083,76:15.2633,77:17.1150,78:19.1775,79:21.4667,80:23.9892,81:26.7617,82:29.8225,83:33.2175,84:37.0142,
+    85:41.2817,86:46.0925,87:51.5125,88:57.5975,89:64.4042,90:71.9883,91:80.4158,92:89.7617,93:100.1075,94:111.5342,
+    95:124.1433,96:138.0350,97:153.3058,98:170.0467,99:188.3575,100:208.3150,101:229.9925,102:253.4283,103:278.6625,104:305.6692,
+    105:334.3917,106:374.0325,107:415.6075,108:463.7683,109:516.2175,110:833.3333
+  }
+};
+
+const annualAddFeeRate = [0.024, 0.021792, 0.0156, 0.0156];
+let gender = 'male';
+let freqMonths = 6;
+
+// ===== 初始化事件 =====
+document.addEventListener('DOMContentLoaded', () => {
+  loadFundData();
+  // rate tabs
+  document.querySelectorAll('.rate-tab').forEach(el => {
+    el.addEventListener('click', () => {
+      window._fundRates = null; // 手動切換時清除基金情境
+      const activeNow = document.querySelectorAll('.rate-tab.active');
+      if (el.classList.contains('active')) {
+        if (activeNow.length > 1) el.classList.remove('active');
+      } else {
+        if (activeNow.length < 3) el.classList.add('active');
+      }
+    });
+  });
+
+  // freq tabs
+  document.querySelectorAll('.freq-btn').forEach(el => {
+    el.addEventListener('click', () => {
+      document.querySelectorAll('.freq-btn').forEach(b => b.classList.remove('active'));
+      el.classList.add('active');
+      freqMonths = parseInt(el.dataset.freq);
+    });
+  });
+});
+
+function setGender(g) {
+  gender = g;
+  document.getElementById('btn-male').classList.toggle('active', g === 'male');
+  document.getElementById('btn-female').classList.toggle('active', g === 'female');
+}
+
+function toggleDivUI() {
+  const on = document.getElementById('divSwitch').checked;
+  document.getElementById('div-options').style.display = on ? 'block' : 'none';
+}
+
+function fmt(n) {
+  if (n == null || isNaN(n)) return '-';
+  return Math.round(n).toLocaleString('zh-TW');
+}
+function fmtW(n) { return (n / 10000).toFixed(1) + ' 萬'; }
+
+function getMortalityRate(age) {
+  const t = mortalityTable[gender];
+  return t[Math.min(Math.max(age, 15), 110)] ?? 833.3333;
+}
+
+// ===== 取得當前選取的報酬率（直接從 DOM 讀，或套用基金情境）=====
+function getSelectedRates() {
+  // 若有套用基金情境，優先使用
+  if (window._fundRates && window._fundRates.length > 0) {
+    return [...window._fundRates].sort((a, b) => a - b);
+  }
+  const fromTabs = [...document.querySelectorAll('.rate-tab.active')]
+    .map(el => parseFloat(el.dataset.rate));
+  const customVal = document.getElementById('customRate').value.trim();
+  let rates = [...fromTabs];
+  if (customVal !== '') {
+    const cr = parseFloat(customVal);
+    if (!isNaN(cr) && cr > 0 && !rates.includes(cr) && rates.length < 3) {
+      rates.push(cr);
+    }
+  }
+  return [...new Set(rates)].sort((a, b) => a - b);
+}
+
+// ===== 模擬計算 =====
+function simulate(annualRate, baseAge, baseSumInsured, lumpSum, totalYears, enableDiv, annualDivRate, divFreqMonths) {
+  const monthlyGrowthRate = Math.pow(1 + annualRate / 100, 1 / 12) - 1;
+  const divRatePerPeriod = enableDiv ? (annualDivRate / 100) * (divFreqMonths / 12) : 0;
+
+  let AV = lumpSum;
+  let totalMonth = 0;
+  let totalInsuranceCost = 0;
+  let totalFixedFee = 0;
+  let totalAddFee = 0;
+  let totalDividend = 0;
+  const results = [];
+
+  for (let year = 1; year <= totalYears; year++) {
+    const currentAge = Math.min(baseAge + year - 1, 110);
+    let yearInsuranceCost = 0;
+    let yearFixedFee = 0;
+    let yearAddFee = 0;
+    let yearDividend = 0;
+    const monthlyAddFee = year <= 4 ? (lumpSum * annualAddFeeRate[year - 1]) / 12 : 0;
+
+    for (let m = 1; m <= 12; m++) {
+      totalMonth++;
+      // 1. 固定管理費
+      AV = Math.max(AV - 100, 0);
+      yearFixedFee += 100;
+      // 2. 附加保費費用
+      if (monthlyAddFee > 0) {
+        AV = Math.max(AV - monthlyAddFee, 0);
+        yearAddFee += monthlyAddFee;
+      }
+      // 3. 保險成本
+      const netRisk = Math.max(baseSumInsured - AV, 0);
+      const insuranceCost = (netRisk / 10000) * getMortalityRate(currentAge);
+      AV = Math.max(AV - insuranceCost, 0);
+      yearInsuranceCost += insuranceCost;
+      // 4. 資本利得
+      AV = AV * (1 + monthlyGrowthRate);
+      // 5. 配息
+      if (enableDiv && totalMonth % divFreqMonths === 0) {
+        const dividend = AV * divRatePerPeriod;
+        AV = Math.max(AV - dividend, 0);
+        yearDividend += dividend;
+      }
+    }
+
+    totalInsuranceCost += yearInsuranceCost;
+    totalFixedFee += yearFixedFee;
+    totalAddFee += yearAddFee;
+    totalDividend += yearDividend;
+
+    results.push({
+      year, age: currentAge, AV,
+      deathBenefit: Math.max(baseSumInsured, AV),
+      yearInsuranceCost, yearFixedFee, yearAddFee, yearDividend,
+      totalInsuranceCost, totalFixedFee, totalAddFee, totalDividend
+    });
+  }
+  return results;
+}
+
+// ===== 試算入口 =====
+function calculate() {
+  const age        = parseInt(document.getElementById('age').value);
+  const sumInsured = parseFloat(document.getElementById('sumInsured').value);
+  const lumpSum    = parseFloat(document.getElementById('lumpSum').value);
+  const years      = parseInt(document.getElementById('years').value);
+  const enableDiv  = document.getElementById('divSwitch').checked;
+  const annualDivRate = enableDiv ? parseFloat(document.getElementById('divRate').value) : 0;
+
+  if (!age || !sumInsured || !lumpSum || !years) { alert('請填寫所有必填欄位'); return; }
+  if (age < 15 || age > 80) { alert('投保年齡需在 15–80 歲之間'); return; }
+  if (lumpSum < 100000) { alert('躉繳保費最低為 100,000 元'); return; }
+  if (enableDiv && (!annualDivRate || annualDivRate <= 0)) { alert('請輸入有效的配息率'); return; }
+
+  const rates = getSelectedRates();
+  if (rates.length === 0) { alert('請至少選擇一個報酬率情境'); return; }
+
+  const freqLabel = { 1:'月配', 3:'季配', 6:'半年配', 12:'年配' }[freqMonths] || '';
+  const sims = rates.map(r => simulate(r, age, sumInsured, lumpSum, years, enableDiv, annualDivRate, freqMonths));
+
+  // ---- 摘要 ----
+  let html = `<div class="panel" style="margin-bottom:18px;">
+    <div class="panel-title">第 ${years} 年末試算摘要${enableDiv ? `<span class="div-badge">配息率 ${annualDivRate}%・${freqLabel}</span>` : ''}</div>
+    <div class="summary-grid">`;
+
+  sims.forEach((sim, i) => {
+    const d = sim[sim.length - 1];
+    html += `<div class="summary-card c-green"><div class="s-label">報酬率 ${rates[i]}%・帳戶價值</div><div class="s-value">${fmtW(d.AV)}</div></div>`;
+  });
+  sims.forEach((sim, i) => {
+    const d = sim[sim.length - 1];
+    html += `<div class="summary-card c-gold"><div class="s-label">報酬率 ${rates[i]}%・身故保險金</div><div class="s-value">${fmtW(d.deathBenefit)}</div></div>`;
+  });
+  if (enableDiv) {
+    // 配息只顯示一個（以最低報酬率情境為代表）
+    const d0 = sims[0][sims[0].length - 1];
+    html += `<div class="summary-card c-blue"><div class="s-label">累計配息（報酬率 ${rates[0]}% 情境）</div><div class="s-value">${fmtW(d0.totalDividend)}</div></div>`;
+  }
+  const d0last = sims[0][sims[0].length - 1];
+  html += `
+    <div class="summary-card c-red"><div class="s-label">累計保險成本（報酬率 ${rates[0]}% 情境）</div><div class="s-value">${fmtW(d0last.totalInsuranceCost)}</div></div>
+    <div class="summary-card c-cream"><div class="s-label">累計保單管理費</div><div class="s-value">${fmtW(d0last.totalFixedFee + d0last.totalAddFee)}</div></div>
+    <div class="summary-card c-cream"><div class="s-label">躉繳保費</div><div class="s-value">${fmtW(lumpSum)}</div></div>
+  </div></div>`;
+
+  // ---- 明細表 ----
+  // 表頭：帳戶價值、身故保險金各依報酬率情境展開
+  // 配息、保險成本、管理費：各一欄，不帶%
+  let thAV   = rates.map(r => `<th>報酬率 ${r}%<br>帳戶價值</th>`).join('');
+  let thDeath = rates.map(r => `<th class="th-sep">報酬率 ${r}%<br>身故保險金</th>`).join('');
+  let thDiv  = enableDiv ? `<th class="th-sep td-b">年度配息</th><th class="td-b">累計配息</th>` : '';
+  let thFees = `<th class="th-sep">年度保險成本</th><th>年度固定管理費</th><th>年度附加保費費用</th><th>累計保險成本</th>`;
+
+  html += `<div class="panel">
+    <div class="panel-title">逐年試算明細${enableDiv ? `<span class="div-badge">配息率 ${annualDivRate}%・${freqLabel}</span>` : ''}</div>
+    <div class="table-wrap"><table>
+      <thead><tr><th>年度</th><th>年齡</th>${thAV}${thDeath}${thDiv}${thFees}</tr></thead>
+      <tbody>`;
+
+  for (let y = 0; y < years; y++) {
+    const base = sims[0][y];
+    let tdAV    = sims.map(s => `<td class="td-g">${fmt(s[y].AV)}</td>`).join('');
+    let tdDeath = sims.map(s => `<td class="td-sep td-gold">${fmt(s[y].deathBenefit)}</td>`).join('');
+    let tdDiv   = enableDiv
+      ? `<td class="td-sep td-b">${fmt(base.yearDividend)}</td><td class="td-b">${fmt(base.totalDividend)}</td>`
+      : '';
+    let tdFees  = `<td class="td-sep td-r">${fmt(base.yearInsuranceCost)}</td><td>${fmt(base.yearFixedFee)}</td><td>${base.yearAddFee > 0 ? fmt(base.yearAddFee) : '<span style="color:rgba(245,237,216,0.2)">—</span>'}</td><td class="td-r">${fmt(base.totalInsuranceCost)}</td>`;
+    html += `<tr><td>${base.year}</td><td>${base.age}</td>${tdAV}${tdDeath}${tdDiv}${tdFees}</tr>`;
+  }
+
+  const lbF = sims[0][years - 1];
+  let totalAV    = sims.map(() => '<td>—</td>').join('');
+  let totalDeath = sims.map(() => '<td>—</td>').join('');
+  let totalDiv   = enableDiv ? `<td class="td-b">${fmt(lbF.totalDividend)}</td><td>—</td>` : '';
+  let totalFees  = `<td class="td-r">${fmt(lbF.totalInsuranceCost)}</td><td>${fmt(lbF.totalFixedFee)}</td><td>${fmt(lbF.totalAddFee)}</td><td class="td-r">${fmt(lbF.totalInsuranceCost)}</td>`;
+  html += `<tr class="total-row"><td colspan="2">累計</td>${totalAV}${totalDeath}${totalDiv}${totalFees}</tr>`;
+
+  html += `</tbody></table></div>
+    <div class="info-note" style="margin-top:14px;">
+      ★ 本試算為參考用途，實際數字依保單條款及市場狀況而定。<br>
+      ★ 固定保單管理費每月 100 元；附加保費費用前 4 年以躉繳金額為基數月均攤扣除。<br>
+      ★ 戊型淨危險保額 = MAX(基本保額－帳戶價值, 0)；身故保險金 = MAX(基本保額, 帳戶價值)。<br>
+      ${enableDiv ? `★ 配息率 ${annualDivRate}%（${freqLabel}）獨立於報酬率，配息欄數據以最低報酬率情境（${rates[0]}%）為代表。<br>` : ''}
+      ★ 投資報酬採月複利計算。
+    </div>
+  </div>`;
+
+  document.getElementById('results-area').innerHTML = html;
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,33 @@
+name: 每日更新基金淨值數據
+
+on:
+  schedule:
+    - cron: '0 8 * * 1-5'
+  workflow_dispatch:
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: 取出程式碼
+        uses: actions/checkout@v4
+
+      - name: 設定 Python 環境
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: 執行抓取腳本
+        run: python fetch_fund.py
+
+      - name: 若有變動則 commit & push
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add fund_data.json
+          git diff --cached --quiet || git commit -m "🔄 自動更新基金數據 $(date +'%Y-%m-%d')"
+          git push
